@@ -1,0 +1,86 @@
+.group_cont{
+	float:left;
+    width: 95%;
+    border: 4px solid #73AD21;
+    background-color: beige;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select: none;
+}
+
+.group_descr{
+    width: 100%;
+	height: 20%;
+    font-size: 2em;
+    clear: left;
+}
+.group_selfcont{
+	float:left;
+    width: 100%;
+	border: 2px solid red;
+    background-color: bisque;
+}
+.group_itemcont{
+	float:left;
+    width: 100%;
+	border: 2px solid black;
+    background-color: khaki;
+}
+.group_vcont{
+	float:left;
+	width:50%;
+	height: 170px;
+}
+.group_tbl{
+width:auto;
+font-size: 2em;
+}
+
+
+
+.group_tbl_cont{
+	float: left;
+    width: 50%;
+	height: 80%;
+}
+.group_b_cont{
+	float: left;
+    width: 50%;
+	height: 80%;
+    clear: left;
+}
+.group_cell4_4{
+    float: left;
+	width: 25%;
+	height: 25%;
+}
+
+.group_updated_init .group_init{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.group_updated_group_runtime .group_group_runtime{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.group_updated_group_init .group_group_init{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.group_updated{
+    border-color: greenyellow;
+    background-color: yellow;
+    opacity: 1;
+}
+.group_group{
+    float:left;
+    width:100%;
+    padding-top:5px;
+    padding-bottom: 5px;
+    border-bottom: 3px dashed burlywood;
+}
