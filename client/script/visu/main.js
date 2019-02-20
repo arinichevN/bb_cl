@@ -11,7 +11,7 @@ function VMain() {
         //{id: 'lgr_3', address: '127.0.0.1', port: 49179, timeout: 3, name: "регистратор 3"}
 	];
     this.data = {
-        name: "АО Зеленые овощи",
+        name: "ЗАО Тепличный комбинат",
 		kind: this.KIND.GROUP, 
 		elem: null,
 		style: "cmn_nav_firm",
