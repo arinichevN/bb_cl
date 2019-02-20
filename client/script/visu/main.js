@@ -1,8 +1,9 @@
 function VMain() {
     this.type = VISU_TYPE.MAIN;
     this.container = null;
-    this.pcont = null;
-    this.gcont=null;
+    this.navCont = null;
+    this.cntCont = null;
+    this.activeCnt = null;
     this.KIND={GROUP: 1, ONE: 2};
 	this.peer = [
         {id: 'bb_1', address: '127.0.0.1', port: 49192, timeout: 3},
@@ -13,20 +14,23 @@ function VMain() {
         name: "АО Зеленые овощи",
 		kind: this.KIND.GROUP, 
 		elem: null,
+		style: "cmn_nav_firm",
 	    items:[
 		        {
 					name: "теплица 1",
 					kind: this.KIND.GROUP, 
 					elem: null,
+					style: "cmn_nav_block",
 					items: [
 						{
 							name: "стойка 1",
 							kind: this.KIND.GROUP, 
 							elem: null,
+							style: "cmn_nav_rack",
 							items: [
-								{name: "улей 1", kind: this.KIND.ONE,elem: null, peer_id: "bb_1", channel_id: 1},
-								{name: "улей 2", kind: this.KIND.ONE,elem: null, peer_id: "bb_1", channel_id: 2},
-								{name: "улей 3", kind: this.KIND.ONE,elem: null, peer_id: "bb_1", channel_id: 3},
+								{name:"улей 1", kind:this.KIND.ONE, elem:null, style: "cmn_nav_hive", peer_id:"bb_1", channel_id:1},
+								{name:"улей 2", kind:this.KIND.ONE, elem:null, style: "cmn_nav_hive", peer_id:"bb_1", channel_id:2},
+								{name:"улей 3", kind:this.KIND.ONE, elem:null, style: "cmn_nav_hive", peer_id:"bb_1", channel_id:3},
 							]
 						}
 					]
@@ -51,9 +55,11 @@ function VMain() {
 	this.init = function () {
         try {
             this.container = cvis();
-            this.pcont=cd();
-            this.gcont=cd();
-            a(this.container, [this.pcont, this.gcont]);
+            this.navCont=cd();
+            this.cntCont=cd();
+            cla(this.navCont, "cmn_nav");
+            cla(this.cntCont, "cmn_cnt");
+            a(this.container, [this.navCont, this.cntCont]);
             this.makeData();
             this.initialized = true;
             var self = this;
@@ -63,7 +69,7 @@ function VMain() {
           //  page_blocker.prep(1, 1, this, this.CATCH.PAGE_BLOCKER);
             this.redraw();
         } catch (e) {
-            alert(e.message);
+            console.log(e.message);
         }
     };
 	this.getPeerById = function (id) {
@@ -142,26 +148,29 @@ function VMain() {
             console.log(e.message);
         }
     };
-    this.addElem = function(parent_elem, parent, data){
+    this.addElem = function(parent_elem, parent, data, cnt_cont){
 		try{
 		data.elem = null;
-		if(data.kind === this.KIND.ONE){
-			data.elem = new HiveElement(data.name, data.peer, data.channel_id, this.delay_item);
-			data.elem.enable();
-			if(parent_elem !== null){
-				parent_elem.items.push(data.elem);
-			}
-			a(parent, [data.elem.container]);
-		} else if(data.kind === this.KIND.GROUP){
-			data.elem = new GroupElement(data.name, this.delay_item, data.items);
-			data.elem.enable();
-			if(parent_elem !== null){
-				parent_elem.items.push(data.elem);
-			}
-			a(parent, [data.elem.container]);
-			for (var i = 0; i < data.items.length; i++) {
-				this.addElem(data.elem, data.elem.itemCont, data.items[i]);
-			}
+		switch (data.kind){
+			case  this.KIND.ONE:
+				data.elem = new HiveElement(data.name, data.style, data.peer, data.channel_id, this.delay_item, cnt_cont, this);
+				data.elem.enable();
+				if(parent_elem !== null){
+					parent_elem.items.push(data.elem);
+				}
+				a(parent, [data.elem.navCont]);
+				break;
+			case this.KIND.GROUP:
+				data.elem = new GroupElement(data.name, data.style, this.delay_item, cnt_cont, this);
+				data.elem.enable();
+				if(parent_elem !== null){
+					parent_elem.items.push(data.elem);
+				}
+				a(parent, [data.elem.navCont]);
+				for (var i = 0; i < data.items.length; i++) {
+					this.addElem(data.elem, data.elem.itemCont, data.items[i], cnt_cont);
+				}
+				break;
 		}
 	}catch (e){
 		console.log(e);
@@ -177,11 +186,18 @@ function VMain() {
 			}
 		}
 	};
+	this.showElem=function(elem){
+		if(this.activeCnt !== null){
+			cla(this.activeCnt, "hdn");
+		}
+		clr(elem, "hdn");
+		this.activeCnt = elem;
+	};
     this.redraw = function(){
         try {
 			this.dataClear(this.data);
-			clearCont(this.container);
-            this.addElem(null, this.container, this.data);
+			clearCont(this.cntCont);
+            this.addElem(null, this.navCont, this.data, this.cntCont);
         } catch (e) {
             console.log(e.message);
         }	

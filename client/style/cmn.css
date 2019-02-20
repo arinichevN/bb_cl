@@ -1,6 +1,6 @@
 .cmn_cont{
-	float:left;
-    width: 100%;
+	
+  margin:3px;
     border: 4px solid #73AD21;
     background-color: beige;
     -webkit-touch-callout:none;
@@ -10,29 +10,48 @@
     user-select: none;
 }
 .cmn_descr{
-	padding:5px;
-    width: 100%;
-	height: 20%;
+	display: inline;
     font-size: 1.5em;
     font-weight:bold;
-    clear: left;
     color:blue;
 }
-.cmn_btn{
- width: 100%;
- height: 50px;
- margin: 5px;
-}
+.cmn_cntdescr{
 
+	margin:3px;
+    font-size: 1.2em;
+	color:blue;
+}
+.cmn_btn{
+ width: 99%;
+ height: 50px;
+ margin-top: 5px;
+}
+.cmn_cnt{
+	float:left;
+	width:100%;
+}
+.cmn_nav{
+	float:left;
+	width:100%;
+}
+.cmn_cnt_item{
+	float:left;
+	width:100%;
+}
+.cmn_cont_click{
+	    opacity: 0.2;
+}
+.cmn_nav_item{
+	margin: 5px;
+}
 .cmn_bcont{
 	float:left;
-    width: 47%;
+    width: 100%;
 	height: 100%;
 }
 
 .cmn_tbl th, td {
   padding: 3px;
-  text-align: left;
   border: 1px solid coral;
   text-align: center;
 }
@@ -44,7 +63,7 @@ font-size: 1em;
     border-width: 2px;
 }
 .cmn_interactive:hover{
-    outline:4px solid green;
+    outline:3px solid green;
     cursor: default;
 }
 .cmn_selected{
@@ -60,6 +79,12 @@ font-size: 1em;
     width:30px;
     margin-left: 3px;
     margin-right: 3px;
+}
+.cmn_expimg{
+    width:30px;
+    margin-left: 3px;
+    margin-right: 3px;
+    display: inline;
 }
 .cmn_dis{
     opacity: 0.2;
@@ -100,4 +125,16 @@ font-size: 1em;
     padding-top:5px;
     padding-bottom: 5px;
     border-bottom: 3px dashed burlywood;
+}
+.cmn_nav_firm{
+	background-color: beige;
+}
+.cmn_nav_block{
+	background-color: beige;
+}
+.cmn_nav_rack{
+	background-color: beige;
+}
+.cmn_nav_hive{
+
 }

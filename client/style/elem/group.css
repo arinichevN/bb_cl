@@ -11,27 +11,23 @@
 }
 
 .group_descr{
-    width: 100%;
+
 	height: 20%;
     font-size: 2em;
     clear: left;
 }
 .group_selfcont{
-	float:left;
-    width: 100%;
-	border: 2px solid red;
-    background-color: bisque;
+
+
 }
 .group_itemcont{
-	float:left;
-    width: 100%;
-	border: 2px solid black;
+
+
     background-color: khaki;
 }
 .group_vcont{
 	float:left;
-	width:50%;
-	height: 170px;
+	width:100%;
 }
 .group_tbl{
 width:auto;

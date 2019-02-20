@@ -1,8 +1,8 @@
-function GroupElement(descr, delay_send_usec) {
-    
+function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
     this.kind="group";
     this.delay_send_usec=delay_send_usec;
     this.descr = descr;
+    this.slave = slave;
     this.goal = 0;
     this.delta = 0;
     this.CATCH={
@@ -20,9 +20,12 @@ function GroupElement(descr, delay_send_usec) {
 	    flyMin: {value: INT32_MAX, ok: false, elem:null},
 	    flyAvr: {value: 0, ok: false, elem:null},
 	    flyMax: {value: INT32_MIN, ok: false, elem:null},
+	    ltmMin: {value: INT32_MAX, ok: false, elem:null},
+	    ltmAvr: {value: 0, ok: false, elem:null},
+	    ltmMax: {value: INT32_MIN, ok: false, elem:null},
 	};
 	this.data_err = false;
-	this.expanded = false;
+	this.cnt_visible = false;
 	this.no_data_str = "&empty;";
 	this.items = [];
     this.descrE = cd();
@@ -43,6 +46,10 @@ function GroupElement(descr, delay_send_usec) {
     this.data.flyMin.elem = cd();
     this.data.flyAvr.elem = cd();
     this.data.flyMax.elem = cd();
+    
+	this.data.ltmMin.elem = cd();
+    this.data.ltmAvr.elem = cd();
+    this.data.ltmMax.elem = cd();
     
     this.data.openCount.elem = cb();
     this.data.closeCount.elem = cb();
@@ -98,36 +105,63 @@ function GroupElement(descr, delay_send_usec) {
         }
     };
     this.blink = function (style) {
-        cla(this.container, style);
+        cla(this.navCont, style);
         var self = this;
         var tmr = window.setTimeout(function () {
             self.unmark(style);
         }, 300);
     };
     this.unmark = function (style) {
-        clr(this.container, style);
+        clr(this.navCont, style);
     };
     this.dclick=function(me){
-		if(me.expanded){
-			cla(me.itemCont, "hdn");
-			me.expanded = false;
+		if(me.cnt_visible){
+			cla(me.cntCont, "hdn");
+			me.cnt_visible = false;
 		}else{
-			clr(me.itemCont, "hdn");
-			me.expanded = true;
+			clr(me.cntCont, "hdn");
+			me.cnt_visible = true;
 		}
 		
 	};
 	this.resetData = function(){
-		this.data.tempMin.value =  this.data.humMin.value =  this.data.flyMin.value =INT32_MAX;
+		this.data.tempMin.value =  this.data.humMin.value =  this.data.flyMin.value = this.data.ltmMin.value = INT32_MAX;
 		this.data.openCount.value  = this.data.closeCount.value = this.data.tempAvr.value = this.data.humAvr.value =   this.data.flyAvr.value =0;
 	    this.data.tempMax.value =  this.data.humMax.value  = this.data.flyMax.value = INT32_MIN;
-		this.data.tempMin.ok =  this.data.humMin.ok =  this.data.flyMin.ok =  this.data.openCount.ok  = this.data.closeCount.ok = this.data.tempAvr.ok = this.data.humAvr.ok =   this.data.flyAvr.ok =  this.data.tempMax.ok =  this.data.humMax.ok  = this.data.flyMax.ok = 0;
+		this.data.tempMin.ok =  this.data.humMin.ok =  this.data.flyMin.ok =  this.data.openCount.ok  = this.data.closeCount.ok = this.data.tempAvr.ok = this.data.humAvr.ok =   this.data.flyAvr.ok = this.data.ltmAvr.ok = this.data.tempMax.ok =  this.data.humMax.ok  = this.data.ltmMax.ok  = this.data.flyMax.ok = 0;
+	};
+	this.createTbl = function(data){
+		var tbl = c("table");
+		var th = c("tr");
+		var td = c("td");
+		a(th, td);
+		for(var i=0;i<data.header.length;i++){
+			var himg = c("img");
+			s(himg, "src", data.header[i]);
+			var td = c("td");
+			a(td, himg);
+			a(th, td);
+			cla(himg, ["cmn_img"]);
+		}
+		a(tbl, th);
+		for(var i=0;i<data.row.length;i++){
+			var tr = c("tr");
+			for(var j=0;j<data.row[i].length;j++){
+				var td = c("td");
+				a(td, data.row[i][j]);
+				a(tr, td);
+			}
+			a(tbl, tr);
+		}
+		cla(tbl, ["cmn_tbl"]);
+		return tbl;
 	};
 	this.sendRequest = function () {
 		this.resetData();
 		var fly_count =0;
 		var temp_count = 0;
 		var hum_count = 0;
+		var ltm_count = 0;
 	    for(var i=0;i<this.items.length;i++){
 			if(this.items[i].kind === "group"){
 				if(this.items[i].data.tempMin.ok){
@@ -147,6 +181,13 @@ function GroupElement(descr, delay_send_usec) {
 				if(this.items[i].data.flyMin.ok){
 					if(this.data.flyMin.value > this.items[i].data.flyMin.value){
 						this.data.flyMin.value = this.items[i].data.flyMin.value;
+					}
+				}else{
+					this.data_err = true;
+				}
+				if(this.items[i].data.ltmMin.ok){
+					if(this.data.ltmMin.value > this.items[i].data.ltmMin.value){
+						this.data.ltmMin.value = this.items[i].data.ltmMin.value;
 					}
 				}else{
 					this.data_err = true;
@@ -172,6 +213,13 @@ function GroupElement(descr, delay_send_usec) {
 				}else{
 					this.data_err = true;
 				}
+				if(this.items[i].data.ltmMax.ok){
+					if(this.data.ltmMax.value < this.items[i].data.ltmMax.value){
+						this.data.ltmMax.value = this.items[i].data.ltmMax.value;
+					}
+				}else{
+					this.data_err = true;
+				}
 				if(this.items[i].data.tempAvr.ok){
 					this.data.tempAvr.value += this.items[i].data.tempAvr.value;
 					temp_count++;
@@ -187,6 +235,12 @@ function GroupElement(descr, delay_send_usec) {
 				if(this.items[i].data.flyAvr.ok){
 					this.data.flyAvr.value += this.items[i].data.flyAvr.value;
 					fly_count++;
+				}else{
+					this.data_err = true;
+				}
+				if(this.items[i].data.ltmAvr.ok){
+					this.data.ltmAvr.value += this.items[i].data.ltmAvr.value;
+					ltm_count++;
 				}else{
 					this.data_err = true;
 				}
@@ -234,6 +288,18 @@ function GroupElement(descr, delay_send_usec) {
 					fly_count++;	
 					if(this.data.flyMin.value > this.items[i].data.fly.value){
 						this.data.flyMin.value = this.items[i].data.fly.value;
+					}
+				}else{
+					this.data_err = true;
+				}
+				if(this.items[i].data.ltm.ok){
+					if(this.data.ltmMax.value < this.items[i].data.ltm.value){
+						this.data.ltmMax.value = this.items[i].data.ltm.value;
+					}
+					this.data.ltmAvr.value += this.items[i].data.ltm.value;
+					ltm_count++;	
+					if(this.data.ltmMin.value > this.items[i].data.ltm.value){
+						this.data.ltmMin.value = this.items[i].data.ltm.value;
 					}
 				}else{
 					this.data_err = true;
@@ -315,6 +381,28 @@ function GroupElement(descr, delay_send_usec) {
 			cla(  this.data.flyMin.elem, ["cmn_dis"]);
 			this.data.flyMin.elem.innerHTML = this.no_data_str;
 		}
+		
+		if(this.data.ltmMax.ok){
+			clr(  this.data.ltmMax.elem, ["cmn_dis"]);
+			this.data.ltmMax.elem.innerHTML = this.data.ltmMax.value.toString();
+		}else{
+			cla(  this.data.ltmMax.elem, ["cmn_dis"]);
+			this.data.ltmMax.elem.innerHTML = this.no_data_str;
+		}
+		if(this.data.ltmAvr.ok){
+			clr(  this.data.ltmAvr.elem, ["cmn_dis"]);
+			this.data.ltmAvr.elem.innerHTML = this.data.ltmAvr.value.toString();
+		}else{
+			cla(  this.data.ltmAvr.elem, ["cmn_dis"]);
+			this.data.ltmAvr.elem.innerHTML = this.no_data_str;
+		}
+		if(this.data.ltmMin.ok){
+			clr(  this.data.ltmMin.elem, ["cmn_dis"]);
+			this.data.ltmMin.elem.innerHTML = this.data.ltmMin.value.toString();
+		}else{
+			cla(  this.data.ltmMin.elem, ["cmn_dis"]);
+			this.data.ltmMin.elem.innerHTML = this.no_data_str;
+		}
     };
 	this.startSendingRequest = function () {
 		var self = this;
@@ -345,77 +433,60 @@ function GroupElement(descr, delay_send_usec) {
 			this.items[i].sendSettings(this.goal, this.delta);
 		}
 	};
- 	this.container = cd();
+	this.expand = function(){
+		s(this.expImg,  "src", "client/image/zoom_out.svg");
+		clr(this.itemCont, "hdn");
+	};
+	this.collapse = function(){
+		s(this.expImg,  "src", "client/image/zoom_in.svg");
+		cla(this.itemCont, "hdn");
+	};
+	this.colexp = function(){
+		if(clc(this.itemCont, "hdn")){
+			this.expand();
+		}else{
+			this.collapse();
+		}
+	};
+ 	this.navCont = cd();
 	this.selfCont = cd();
 	this.itemCont = cd();
-	var vcont = new DivDClick("cmn_selected", 3000, this, this.dclick, this.selfCont);
-	var humImg = c("img");
-    s(humImg, "src", "client/image/hum.png");
-    var tempImg = c("img");
-    s(tempImg, "src", "client/image/temp.png");
-    var flyImg = c("img");
-    s(flyImg, "src", "client/image/inout.png");
-    
-	var tbl =c("table");
+	this.cntCont = cd();
+	//var vcont = new DivDClick("cmn_selected", 3000, this, this.dclick, this.selfCont);
+	var vcont = cd();
+	var tbl = this.createTbl(
+	{
+		header:["client/image/hum.png","client/image/temp.png","client/image/inout.png","client/image/lifetime.png"],
+		row:[
+			[this.maxE, this.data.tempMax.elem,this.data.humMax.elem,this.data.flyMax.elem,this.data.ltmMax.elem],
+			[this.avrE, this.data.tempAvr.elem,this.data.humAvr.elem,this.data.flyAvr.elem,this.data.ltmAvr.elem],
+			[this.minE, this.data.tempMin.elem,this.data.humMin.elem,this.data.flyMin.elem,this.data.ltmMin.elem],
+		]
+	}
 	
-	var tr1 = c("tr");
-	var td11 = c("td");
-	var td12 = c("td");a(td12, tempImg);
-	var td13 = c("td");a(td13, humImg);
-	var td14 = c("td");a(td14, flyImg);
-	a(tr1, [td11,td12,td13,td14]);
-	
-	var tr2 = c("tr");
-	var td21 = c("td");
-	var td22 = c("td");
-	var td23 = c("td");
-	var td24 = c("td");
-	a(td21, this.maxE);
-	a(td22, this.data.tempMax.elem);
-	a(td23, this.data.humMax.elem);
-	a(td24, this.data.flyMax.elem);
-	a(tr2, [td21,td22,td23,td24]);
-	
-	var tr3 = c("tr");
-	var td31 = c("td");
-	var td32 = c("td");
-	var td33 = c("td");
-	var td34 = c("td");
-	a(td31, this.avrE);
-	a(td32, this.data.tempAvr.elem);
-	a(td33, this.data.humAvr.elem);
-	a(td34, this.data.flyAvr.elem);
-	a(tr3, [td31,td32,td33,td34]);
-	
-	var tr4 = c("tr");
-	var td41 = c("td");
-	var td42 = c("td");
-	var td43 = c("td");
-	var td44 = c("td");
-	a(td41, this.minE);
-	a(td42, this.data.tempMin.elem);
-	a(td43, this.data.humMin.elem);
-	a(td44, this.data.flyMin.elem);
-	a(tr4, [td41,td42,td43,td44]);
-	a(tbl, [tr1, tr2, tr3, tr4]);
-	
+	);
 	a(vcont, [tbl]);
     var bcont = cd();
     a(bcont, [this.data.openCount.elem, this.data.closeCount.elem, this.settingsB]);
-    a(this.selfCont, [this.descrE, vcont, bcont]);
-    a(this.container, [this.selfCont, this.itemCont]);
-   
-   cla(tbl, ["cmn_tbl"]);
+    this.expImg = c("img");
+    a(this.selfCont, [this.expImg, this.descrE]);
+    var cntdescr = cd();
+    cntdescr.innerHTML = this.descr;
+    a(this.cntCont, [cntdescr, vcont, bcont]);
+    a(this.navCont, [this.selfCont, this.itemCont]);
+	a(cnt_cont, this.cntCont);
     cla([this.data.openCount.elem, this.data.closeCount.elem, this.settingsB], ["cmn_btn"]);
-    cla([tempImg, humImg, flyImg], ["cmn_img"]);
+    cla(cntdescr, ["cmn_cntdescr"]);
     cla(bcont, ["cmn_bcont"]);
     cla(vcont, ["group_vcont"]);
+    cla(this.expImg, ["cmn_expimg"]);
     cla(this.descrE, ["cmn_descr"]);
-    cla(this.itemCont, ["group_itemcont", "hdn"]);
+    cla(this.itemCont, ["group_itemcont"]);
+    cla(this.cntCont, ["cmn_cnt_item", "hdn"]);
     cla(this.selfCont, ["group_selfcont", "cmn_interactive"]);
-    cla(this.container, ["cmn_cont"]);
-    
-    	var self = this;
+    cla(this.navCont, ["cmn_nav_item", style]);
+    this.collapse();
+	var self = this;
 	this.data.openCount.elem.onclick = function(){
 		self.sendOpen();
 	};
@@ -426,5 +497,17 @@ function GroupElement(descr, delay_send_usec) {
 		vsettings.prep(self.goal, self.delta, self, self.CATCH.SETTINGS);
 		showV(vsettings);
 	};
-
+	this.selfCont.onclick = function(){
+		self.slave.showElem(self.cntCont);
+	};
+	this.expImg.onclick = function(){
+		self.colexp();
+	};
+	this.selfCont.onmousedown = function(){console.log(self.selfCont);
+		cla(self.selfCont, ["cmn_cont_click"]);
+	};
+	this.selfCont.onmouseup = function(){
+		console.log(self.selfCont);
+		clr(self.selfCont, ["cmn_cont_click"]);console.log("up");
+	};
 }
