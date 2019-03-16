@@ -15,18 +15,21 @@ function VMain() {
 		kind: this.KIND.GROUP, 
 		elem: null,
 		style: "cmn_nav_firm",
+		expanded: true,
 	    items:[
 		        {
 					name: "теплица 1",
 					kind: this.KIND.GROUP, 
 					elem: null,
 					style: "cmn_nav_block",
+					expanded: false,
 					items: [
 						{
 							name: "стойка 1",
 							kind: this.KIND.GROUP, 
 							elem: null,
 							style: "cmn_nav_rack",
+							expanded: false,
 							items: [
 								{name:"улей 1", kind:this.KIND.ONE, elem:null, style: "cmn_nav_hive", peer_id:"bb_1", channel_id:1},
 								{name:"улей 2", kind:this.KIND.ONE, elem:null, style: "cmn_nav_hive", peer_id:"bb_1", channel_id:2},
@@ -161,7 +164,7 @@ function VMain() {
 				a(parent, [data.elem.navCont]);
 				break;
 			case this.KIND.GROUP:
-				data.elem = new GroupElement(data.name, data.style, this.delay_item, cnt_cont, this);
+				data.elem = new GroupElement(data.name, data.style, this.delay_item, data.expanded, cnt_cont, this);
 				data.elem.enable();
 				if(parent_elem !== null){
 					parent_elem.items.push(data.elem);

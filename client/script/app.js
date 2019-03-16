@@ -1,4 +1,8 @@
 var app = {
+	USER_KIND:{
+		STR:['admin','actor','viewer'],
+		DICT:[308,309,310]
+	},
     LIMIT: {
         GET_DATA: 3
     },

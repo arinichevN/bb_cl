@@ -1,0 +1,70 @@
+.login_header{
+    font-size: 1em;
+    font-weight: bold;
+    color: coral;
+}
+.login_toggle{
+    color: grey;
+}
+.login_interactive{
+    color:green;
+}
+.login_active{
+    color:brown;
+}
+.login_btn{
+	font-size: 1.5em;
+}
+.login_hbtn{
+    width:100%;
+    height: 80%;
+    font-size: 2em;
+    font-weight: bold;
+    font-kerning:  none;
+    color:brown;
+}
+.login_btnH{
+    width: 100%;
+    height: 25%;
+    font-size: 1em;
+}
+.login_icell{
+    width:98%;
+    height: 98%;
+    margin:1px;
+    
+}
+.login_cell1{
+    float:left;
+    width:50%;
+    height: 18%;
+}
+.login_cell2{
+    float:left;
+    width:50%;
+    height: 18%;
+}
+
+.login_cell3{
+    float:left;
+    width:50%;
+    height: 25%;
+}
+
+.login_cell4{
+    float:left;
+    width:50%;
+    height: 30%;
+}
+
+.login_row4{
+    float:left;
+    width:100%;
+    height: 20%;
+}
+.login_em_mode{
+    float:left;
+    width:98%;
+    height: 98%;
+    margin: 1px;
+}

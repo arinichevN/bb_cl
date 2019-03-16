@@ -1,7 +1,6 @@
 .cmn_cont{
 	
   margin:3px;
-    border: 4px solid #73AD21;
     background-color: beige;
     -webkit-touch-callout:none;
     -webkit-user-select:none;
@@ -98,6 +97,9 @@ font-size: 1em;
 }
 .cmn_lower{
     color: blue;
+}
+.cmn_old_data{
+    color: yellow;
 }
 .cmn_updated_init .cmn_init{
     background-color: yellow;

@@ -1,0 +1,82 @@
+.groupe_cont{
+	float:left;
+    width: 95%;
+    border: 4px solid #73AD21;
+    background-color: beige;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select: none;
+}
+
+.groupe_descr{
+
+	height: 20%;
+    font-size: 2em;
+    clear: left;
+}
+.groupe_selfcont{
+
+
+}
+.groupe_itemcont{
+
+
+    background-color: khaki;
+}
+.groupe_vcont{
+	float:left;
+	width:100%;
+}
+.groupe_tbl{
+width:auto;
+font-size: 2em;
+}
+
+
+
+.groupe_tbl_cont{
+	float: left;
+    width: 50%;
+	height: 80%;
+}
+.groupe_b_cont{
+	float: left;
+    width: 50%;
+	height: 80%;
+    clear: left;
+}
+.groupe_cell4_4{
+    float: left;
+	width: 25%;
+	height: 25%;
+}
+
+.groupe_updated_init .groupe_init{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.groupe_updated_group_runtime .groupe_group_runtime{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.groupe_updated_group_init .groupe_group_init{
+    background-color: yellow;
+    opacity: 1;
+}
+
+.groupe_updated{
+    border-color: greenyellow;
+    background-color: yellow;
+    opacity: 1;
+}
+.groupe_group{
+    float:left;
+    width:100%;
+    padding-top:5px;
+    padding-bottom: 5px;
+    border-bottom: 3px dashed burlywood;
+}

@@ -11,7 +11,6 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 		openCount:  {value: 0, ok: false, elem:null},
 		closeCount: {value: 0, ok: false, elem:null},
 		temp: {value: 0, ok: false, elem:null},
-	    hum: {value: 0, ok: false, elem:null},
 	    fly: {value: 0, ok: false, elem:null},
 	    ltm: {value: 0, ok: false, elem:null}
 	};
@@ -134,7 +133,6 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 	};
 	this.resetData = function(){
 		this.data.temp.ok = false;
-		this.data.hum.ok = false;
 		this.data.fly.ok = false;
 		this.data.ltm.ok = false;
 		this.data.closeCount.ok = false;
@@ -144,10 +142,6 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 		this.data.temp.elem.innerHTML = this.no_data_str;
 		cla(this.data.temp.elem, ["cmn_dis"]);
 		this.data.temp.ok = false;
-		
-		this.data.hum.elem.innerHTML = this.no_data_str;
-		cla(this.data.hum.elem, ["cmn_dis"]);
-		this.data.hum.ok = false;
 		
 		this.data.fly.elem.innerHTML = this.no_data_str;
 		cla(this.data.fly.elem, ["cmn_dis"]);
@@ -181,7 +175,6 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 					}
 					this.resetData();
 					var temp = parseFloat(d[0].temp);
-					var hum = parseFloat(d[0].hum);
 					var fly = parseInt(d[0].fly);
 					var ltm = parseInt(d[0].ltm);
 					var closed = parseInt(d[0].closed);
@@ -189,27 +182,19 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 					var delta = parseFloat(d[0].delta);
 					
 					var temp_ok = parseInt(d[0].temp_ok);
-					var hum_ok = parseInt(d[0].hum_ok);
 					var fly_ok = parseInt(d[0].fly_ok);
 					var ltm_ok = parseInt(d[0].ltm_ok);
 					var closed_ok = parseInt(d[0].closed_ok);
 					var goal_ok = parseInt(d[0].goal_ok);
 					var delta_ok = parseInt(d[0].delta_ok);
 					
-				    if(!( isNaN(temp) || isNaN(hum) || isNaN(fly) || isNaN(closed) || isNaN(goal) || isNaN(delta) || isNaN(temp_ok) || isNaN(hum_ok) || isNaN(fly_ok) || isNaN(ltm_ok) || isNaN(closed_ok) || isNaN(goal_ok) || isNaN(delta_ok))){
+				    if(!( isNaN(temp) || isNaN(fly) || isNaN(closed) || isNaN(goal) || isNaN(delta) || isNaN(temp_ok) || isNaN(fly_ok) || isNaN(ltm_ok) || isNaN(closed_ok) || isNaN(goal_ok) || isNaN(delta_ok))){
 						if(temp_ok){
 							this.data.temp.elem.innerHTML = temp.toString();
 							clr(this.data.temp.elem, ["cmn_dis"]);
 						}else{
 							this.data.temp.elem.innerHTML = this.no_data_str;
 							cla(this.data.temp.elem, ["cmn_dis"]);
-						}
-						if(hum_ok){
-							this.data.hum.elem.innerHTML = hum.toString();
-							clr(this.data.hum.elem, ["cmn_dis"]);
-						}else{
-							this.data.hum.elem.innerHTML = this.no_data_str;
-							cla(this.data.hum.elem, ["cmn_dis"]);
 						}
 						if(fly_ok){
 							this.data.fly.elem.innerHTML = fly.toString();
@@ -300,15 +285,12 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 	this.navCont = cd();
 	this.cntCont = cd();
 	this.data.temp.elem = cd();
-	this.data.hum.elem = cd();
 	this.data.fly.elem = cd();
 	this.data.ltm.elem = cd();
 	this.data.openCount.elem = cb("");
 	this.data.closeCount.elem = cb("");
 	this.settingsB = cb("");
 
-    var humImg = c("img");
-    s(humImg, "src", "client/image/hum.png");
     var tempImg = c("img");
     s(tempImg, "src", "client/image/temp.png");
     var flyImg = c("img");
@@ -320,23 +302,19 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
     var td11 = c("td");
     var td12 = c("td");
     var td13 = c("td");
-    var td14 = c("td");
     a(td11, [tempImg]);
-    a(td12, [humImg]);
-    a(td13, [flyImg]);
-    a(td14, [ltmImg]);
-    a(tr1, [td11, td12, td13, td13, td14]);
+    a(td12, [flyImg]);
+    a(td13, [ltmImg]);
+    a(tr1, [td11, td12, td13, td13]);
     
     var tr2 = c("tr");
     var td21 = c("td");
     var td22 = c("td");
     var td23 = c("td");
-    var td24 = c("td");
     a(td21, [this.data.temp.elem]);
-    a(td22, [this.data.hum.elem]);
-    a(td23, [this.data.fly.elem]);
-    a(td24, [this.data.ltm.elem]);
-    a(tr2, [td21, td22, td23,td24]);
+    a(td22, [this.data.fly.elem]);
+    a(td23, [this.data.ltm.elem]);
+    a(tr2, [td21, td22, td23]);
     a(tbl, [tr1, tr2]);
 	var vcont = cd();
 	a(vcont, [tbl]);
@@ -350,8 +328,8 @@ function HiveElement(descr, style, peer, channel_id, delay_send_usec, cnt_cont, 
 	cla(cntdescr, ["cmn_cntdescr"]);
 	cla(tbl, ["cmn_tbl"]);
 	cla([this.data.openCount.elem, this.data.closeCount.elem, this.settingsB], ["cmn_btn"]);
-	cla([this.data.temp.elem,this.data.hum.elem,this.data.fly.elem,this.data.ltm.elem ],["hive_val"]);
-	cla([humImg, tempImg, flyImg, ltmImg],["cmn_img"]);
+	cla([this.data.temp.elem,this.data.fly.elem,this.data.ltm.elem ],["hive_val"]);
+	cla([ tempImg, flyImg, ltmImg],["cmn_img"]);
 	cla([this.data.openCount.elem, this.data.closeCount.elem], ["hive_ocb"]);
 	cla(vcont, ["hive_vcont"]);
 	cla(bcont, ["cmn_bcont"]);

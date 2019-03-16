@@ -1,12 +1,22 @@
-function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
+function GroupElement(id, descr, style, delay_send_usec, expanded, cnt_cont, slave) {
+	this.id = id;
     this.kind="group";
     this.delay_send_usec=delay_send_usec;
     this.descr = descr;
     this.slave = slave;
     this.goal = 0;
     this.delta = 0;
+    this.expanded = expanded;
     this.CATCH={
 		SETTINGS:1
+	};
+	this.ACTION={
+		GET_TEMPR:0,
+		GET_FLY:1,
+		GET_LTM:2,
+		GET_FLYTE:3,
+		SET_FLYTE:4,
+		SET_GOAL:5
 	};
     this.data = {
 		openCount:  {value: 0, ok: false, elem:null},
@@ -14,15 +24,12 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		tempMin: {value: INT32_MAX, ok: false, elem:null},
 	    tempAvr: {value: 0, ok: false, elem:null},
 	    tempMax: {value: INT32_MIN, ok: false, elem:null},
-	    humMin: {value: INT32_MAX, ok: false, elem:null},
-	    humAvr: {value: 0, ok: false, elem:null},
-	    humMax: {value: INT32_MIN, ok: false, elem:null},
 	    flyMin: {value: INT32_MAX, ok: false, elem:null},
 	    flyAvr: {value: 0, ok: false, elem:null},
 	    flyMax: {value: INT32_MIN, ok: false, elem:null},
 	    ltmMin: {value: INT32_MAX, ok: false, elem:null},
 	    ltmAvr: {value: 0, ok: false, elem:null},
-	    ltmMax: {value: INT32_MIN, ok: false, elem:null},
+	    ltmMax: {value: INT32_MIN, ok: false, elem:null}
 	};
 	this.data_err = false;
 	this.cnt_visible = false;
@@ -38,10 +45,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
     this.data.tempMin.elem = cd();
     this.data.tempAvr.elem = cd();
     this.data.tempMax.elem = cd();
-    
-    this.data.humMin.elem = cd();
-    this.data.humAvr.elem = cd();
-    this.data.humMax.elem = cd();
     
     this.data.flyMin.elem = cd();
     this.data.flyAvr.elem = cd();
@@ -125,10 +128,10 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		
 	};
 	this.resetData = function(){
-		this.data.tempMin.value =  this.data.humMin.value =  this.data.flyMin.value = this.data.ltmMin.value = INT32_MAX;
-		this.data.openCount.value  = this.data.closeCount.value = this.data.tempAvr.value = this.data.humAvr.value =   this.data.flyAvr.value =0;
-	    this.data.tempMax.value =  this.data.humMax.value  = this.data.flyMax.value = INT32_MIN;
-		this.data.tempMin.ok =  this.data.humMin.ok =  this.data.flyMin.ok =  this.data.openCount.ok  = this.data.closeCount.ok = this.data.tempAvr.ok = this.data.humAvr.ok =   this.data.flyAvr.ok = this.data.ltmAvr.ok = this.data.tempMax.ok =  this.data.humMax.ok  = this.data.ltmMax.ok  = this.data.flyMax.ok = 0;
+		this.data.tempMin.value =  this.data.flyMin.value = this.data.ltmMin.value = INT32_MAX;
+		this.data.openCount.value  = this.data.closeCount.value = this.data.tempAvr.value =  this.data.flyAvr.value =0;
+	    this.data.tempMax.value = this.data.flyMax.value = INT32_MIN;
+		this.data.tempMin.ok =  this.data.flyMin.ok =  this.data.openCount.ok  = this.data.closeCount.ok = this.data.tempAvr.ok =  this.data.flyAvr.ok = this.data.ltmAvr.ok = this.data.tempMax.ok =  this.data.ltmMax.ok  = this.data.flyMax.ok = 0;
 	};
 	this.createTbl = function(data){
 		var tbl = c("table");
@@ -160,20 +163,12 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		this.resetData();
 		var fly_count =0;
 		var temp_count = 0;
-		var hum_count = 0;
 		var ltm_count = 0;
 	    for(var i=0;i<this.items.length;i++){
 			if(this.items[i].kind === "group"){
 				if(this.items[i].data.tempMin.ok){
 					if(this.data.tempMin.value > this.items[i].data.tempMin.value){
 						this.data.tempMin.value = this.items[i].data.tempMin.value;
-					}
-				}else{
-					this.data_err = true;
-				}
-				if(this.items[i].data.humMin.ok){
-					if(this.data.humMin.value > this.items[i].data.humMin.value){
-						this.data.humMin.value = this.items[i].data.humMin.value;
 					}
 				}else{
 					this.data_err = true;
@@ -199,13 +194,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 				}else{
 					this.data_err = true;
 				}
-				if(this.items[i].data.humMax.ok){
-					if(this.data.humMax.value < this.items[i].data.humMax.value){
-						this.data.humMax.value = this.items[i].data.humMax.value;
-					}
-				}else{
-					this.data_err = true;
-				}
 				if(this.items[i].data.flyMax.ok){
 					if(this.data.flyMax.value < this.items[i].data.flyMax.value){
 						this.data.flyMax.value = this.items[i].data.flyMax.value;
@@ -223,12 +211,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 				if(this.items[i].data.tempAvr.ok){
 					this.data.tempAvr.value += this.items[i].data.tempAvr.value;
 					temp_count++;
-				}else{
-					this.data_err = true;
-				}
-				if(this.items[i].data.humAvr.ok){
-					this.data.humAvr.value += this.items[i].data.humAvr.value;
-					hum_count++;
 				}else{
 					this.data_err = true;
 				}
@@ -268,18 +250,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 				}else{
 					this.data_err = true;
 				}
-				if(this.items[i].data.hum.ok){
-					if(this.data.humMax.value < this.items[i].data.hum.value){
-						this.data.humMax.value = this.items[i].data.hum.value;
-					}
-					this.data.humAvr.value += this.items[i].data.hum.value;
-					hum_count++;	
-					if(this.data.humMin.value > this.items[i].data.hum.value){
-						this.data.humMin.value = this.items[i].data.hum.value;
-					}
-				}else{
-					this.data_err = true;
-				}
 				if(this.items[i].data.fly.ok){
 					if(this.data.flyMax.value < this.items[i].data.fly.value){
 						this.data.flyMax.value = this.items[i].data.fly.value;
@@ -309,9 +279,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		if(temp_count > 0){
 			this.data.tempAvr.value = this.data.tempAvr.value / temp_count;
 		}
-		if(hum_count > 0){
-			this.data.humAvr.value = this.data.humAvr.value / hum_count;
-		}
 		if(fly_count > 0){
 			this.data.flyAvr.value = this.data.flyAvr.value / fly_count;
 		}
@@ -336,28 +303,6 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		}else{
 			cla( this.data.tempMin.elem , ["cmn_dis"]);
 			this.data.tempMin.elem.innerHTML = this.no_data_str;
-		}
-		
-		if(this.data.humMax.ok){
-			clr(  this.data.humMax.elem, ["cmn_dis"]);
-			this.data.humMax.elem.innerHTML = this.data.humMax.value.toString();
-		}else{
-			cla(  this.data.humMax.elem, ["cmn_dis"]);
-			this.data.humMax.elem.innerHTML = this.no_data_str;
-		}
-		if(this.data.humAvr.ok){
-			clr( this.data.humAvr.elem , ["cmn_dis"]);
-			this.data.humAvr.elem.innerHTML = this.data.humAvr.value.toString();
-		}else{
-			cla(  this.data.humAvr.elem, ["cmn_dis"]);
-			this.data.humAvr.elem.innerHTML = this.no_data_str;
-		}
-		if(this.data.humMin.ok){
-			clr(  this.data.humMin.elem, ["cmn_dis"]);
-			this.data.humMin.elem.innerHTML = this.data.humMin.value.toString();
-		}else{
-			cla(  this.data.humMin.elem, ["cmn_dis"]);
-			this.data.humMin.elem.innerHTML = this.no_data_str;
 		}
 		
 		if(this.data.flyMax.ok){
@@ -404,6 +349,42 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 			this.data.ltmMin.elem.innerHTML = this.no_data_str;
 		}
     };
+	this.getTemprData = function(){
+		var data = [
+            {
+                action: ['group', 'get_tempr'],
+                param: {address: this.peer.address, port: this.peer.port, item: [this.id]}
+            }
+        ];
+        sendTo(this, data, this.ACTION.GET_TEMPR, 'json_udp_acp');
+	};
+	this.getFlyData = function(){
+		var data = [
+            {
+                action: ['group', 'get_fly'],
+                param: {address: this.peer.address, port: this.peer.port, item: [this.id]}
+            }
+        ];
+        sendTo(this, data, this.ACTION.GET_FLY, 'json_udp_acp');
+	};
+	this.getBusyTimeData = function(){
+		var data = [
+            {
+                action: ['group', 'get_busy_time'],
+                param: {address: this.peer.address, port: this.peer.port, item: [this.id]}
+            }
+        ];
+        sendTo(this, data, this.ACTION.GET_LTM, 'json_udp_acp');
+	};
+	this.getFlyteData = function(){
+		var data = [
+            {
+                action: ['group', 'get_flyte'],
+                param: {address: this.peer.address, port: this.peer.port, item: [this.id]}
+            }
+        ];
+        sendTo(this, data, this.ACTION.GET_FLYTE, 'json_udp_acp');
+	};
 	this.startSendingRequest = function () {
 		var self = this;
 		this.tmr = window.setInterval(function () {
@@ -448,24 +429,151 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 			this.collapse();
 		}
 	};
+	this.confirm = function (action, d, dt_diff) {
+		switch (action) {
+			case this.ACTION.GET_FLY:
+			case this.ACTION.GET_LTM:
+			case this.ACTION.GET_TEMPR:
+				var min_elem = null;
+				var avr_elem = null;
+				var max_elem = null;
+				switch(action){
+					case this.ACTION.GET_FLY:
+						min_elem = this.data.flyMin.elem;
+						avr_elem = this.data.flyAvr.elem;
+						max_elem = this.data.flyMax.elem;
+						break;
+					case this.ACTION.GET_LTM:
+						min_elem = this.data.ltmMin.elem;
+						avr_elem = this.data.ltmAvr.elem;
+						max_elem = this.data.ltmMax.elem;
+						break;
+					case this.ACTION.GET_TEMPR:
+						min_elem = this.data.tempMin.elem;
+						avr_elem = this.data.tempAvr.elem;
+						max_elem = this.data.tempMax.elem;
+						break;
+				}
+				var success = true;
+				if (typeof d[0] !== 'undefined') {
+					var id=parseInt(d[0].id);
+					if(this.data.id === id){
+						var min = parseFloat(d[0].min);
+						var avr = parseInt(d[0].avr);
+						var max = parseInt(d[0].max);
+						if(!( isNaN(min) || isNaN(avr) || isNaN(max))){
+							min_elem.innerHTML = min.toString();
+							avr_elem.innerHTML = avr.toString();
+							max_elem.innerHTML = max.toString();
+							
+						}else{
+							console.log("confirm(): bad data", min, avr, max);
+							success = false;
+						}
+					}else{
+						console.log("unexpected group id");
+						success = false;
+					}
+					
+				}else{
+					console.log("no data:", d[0]);
+					success = false;
+				}
+				if(success){
+					clr(min_elem, ["cmn_dis"]);
+					clr(avr_elem, ["cmn_dis"]);
+					clr(max_elem, ["cmn_dis"]);
+				}else{
+					cla(min_elem, ["cmn_dis"]);
+					cla(avr_elem, ["cmn_dis"]);
+					cla(max_elem, ["cmn_dis"]);
+					min_elem.innerHTML = this.no_data_str;
+					avr_elem.innerHTML = this.no_data_str;
+					max_elem.innerHTML = this.no_data_str;
+				}
+				break;
+			case this.ACTION.GET_FLYTE:
+				var success = true;
+				if (typeof d[0] !== 'undefined') {
+					var id=parseInt(d[0].id);
+					if(this.data.id === id){
+						var open = parseFloat(d[0].min);
+						var close = parseInt(d[0].avr);
+						if(!( isNaN(open) || isNaN(close))){
+							this.data.openCount.elem.innerHTML = open.toString();
+							this.data.closeCount.elem.innerHTML = close.toString();
+						}else{
+							console.log("confirm(): bad data", min, avr, max);
+							success = false;
+						}
+					}else{
+						console.log("unexpected group id");
+						success = false;
+					}
+					
+				}else{
+					console.log("no data:", d[0]);
+					success = false;
+				}
+				if(success){
+					clr(this.data.openCount.elem, ["cmn_dis"]);
+					clr(this.data.closeCount.elem, ["cmn_dis"]);
+				}else{
+					cla(this.data.openCount.elem, ["cmn_dis"]);
+					cla(this.data.closeCount.elem, ["cmn_dis"]);
+					this.data.openCount.elem.innerHTML = this.no_data_str;
+					this.data.closeCount.elem.innerHTML = this.no_data_str;
+				}
+				break;
+			case this.ACTION.SET_FLYTE:
+				break;
+			case this.ACTION.SET_GOAL:
+				break;
+			default:
+				console.log("confirm: unknown action: ", action);
+				break;
+         }
+	};
+	this.abort = function (action, m, n) {
+		switch (action) {
+			case this.ACTION.GET_TEMPR:
+				cla([this.data.tempMin.elem,this.data.tempAvr.elem,this.data.tempMax.elem], "cmn_old_data");
+				break;
+			case this.ACTION.GET_FLY:
+				cla([this.data.flyMin.elem,this.data.flyAvr.elem,this.data.flyMax.elem], "cmn_old_data");
+				break;
+			case this.ACTION.GET_LTM:
+				cla([this.data.ltmMin.elem,this.data.ltmAvr.elem,this.data.ltmMax.elem], "cmn_old_data");
+				break;
+			case this.ACTION.SET_FLYTE:
+				this.data.openCount = -1;
+				this.data.closeCount = -1;
+				break;
+			case this.ACTION.SET_GOAL:
+				break;
+			default:
+				console.log("abort: unknown action: ", action);
+				break;
+		}
+	};
  	this.navCont = cd();
 	this.selfCont = cd();
 	this.itemCont = cd();
 	this.cntCont = cd();
+	this.periodB = new ToggleButtonArray([["сутки", true],["неделя", false],["месяц", false]], "период", "header_style", "cmn_dis", "elem_enabled_style", "elem_cont_style", "cont_style", "item_style") ;
 	//var vcont = new DivDClick("cmn_selected", 3000, this, this.dclick, this.selfCont);
 	var vcont = cd();
 	var tbl = this.createTbl(
 	{
-		header:["client/image/hum.png","client/image/temp.png","client/image/inout.png","client/image/lifetime.png"],
+		header:["client/image/temp.png","client/image/inout.png","client/image/lifetime.png"],
 		row:[
-			[this.maxE, this.data.tempMax.elem,this.data.humMax.elem,this.data.flyMax.elem,this.data.ltmMax.elem],
-			[this.avrE, this.data.tempAvr.elem,this.data.humAvr.elem,this.data.flyAvr.elem,this.data.ltmAvr.elem],
-			[this.minE, this.data.tempMin.elem,this.data.humMin.elem,this.data.flyMin.elem,this.data.ltmMin.elem],
+			[this.maxE, this.data.tempMax.elem,this.data.flyMax.elem,this.data.ltmMax.elem],
+			[this.avrE, this.data.tempAvr.elem,this.data.flyAvr.elem,this.data.ltmAvr.elem],
+			[this.minE, this.data.tempMin.elem,this.data.flyMin.elem,this.data.ltmMin.elem],
 		]
 	}
-	
 	);
-	a(vcont, [tbl]);
+	a(vcont, [this.periodB, tbl]);
     var bcont = cd();
     a(bcont, [this.data.openCount.elem, this.data.closeCount.elem, this.settingsB]);
     this.expImg = c("img");
@@ -485,7 +593,12 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
     cla(this.cntCont, ["cmn_cnt_item", "hdn"]);
     cla(this.selfCont, ["group_selfcont", "cmn_interactive"]);
     cla(this.navCont, ["cmn_nav_item", style]);
-    this.collapse();
+    if(this.expanded){
+		this.expand();
+	}else{
+		this.collapse();
+	}
+    
 	var self = this;
 	this.data.openCount.elem.onclick = function(){
 		self.sendOpen();
@@ -498,6 +611,10 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		showV(vsettings);
 	};
 	this.selfCont.onclick = function(){
+		self.getTemprData();
+		self.getFlyData();
+		self.getBusyTimeData();
+		self.getFlyteData();
 		self.slave.showElem(self.cntCont);
 	};
 	this.expImg.onclick = function(){
@@ -510,4 +627,5 @@ function GroupElement(descr, style, delay_send_usec, cnt_cont, slave) {
 		console.log(self.selfCont);
 		clr(self.selfCont, ["cmn_cont_click"]);console.log("up");
 	};
+	
 }

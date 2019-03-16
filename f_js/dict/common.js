@@ -62,6 +62,9 @@ trans.addDict([
 	{id: 61, str: ["settings", "настройки"]},
 	{id: 62, str: ["open", "открыть"]},
 	{id: 63, str: ["close", "закрыть"]},
+	{id: 64, str: ["password", "пароль"]},
+	{id: 65, str: ["authorization", "авторизация"]},
+		
     {id: 200, str: ["success", "успешно"]},
     {id: 201, str: ["fail", "неудачно"]},
     {id: 202, str: ["update failed", "не удалось обновить"]},

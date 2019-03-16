@@ -218,18 +218,6 @@ function clr(elem, cl) {
         }
     }
 }
-function claCont(cont, cl){
-	var nl = cont.children;console.log("length:", nl.length);
-	for(var i=0; i < nl.length;i++) {console.log("for:", nl[i]);
-        if (cl instanceof Array) {
-			for (var j = 0; j < cl.length; j++) {
-				nl[i].classList.add(cl[j]);
-			}
-        } else {
-			nl[i].classList.add(cl);
-        }
-    }
-}
 function clc(elem, cl) {//every element has every class
     if (elem instanceof Array) {
         if (cl instanceof Array) {
